@@ -1,0 +1,4 @@
+chcp 437
+
+
+https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/chcp

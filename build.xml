@@ -30,7 +30,7 @@
     <target name="retrieveUnpackaged">
       <mkdir dir="retrieveUnpackaged"/>
       <!-- Retrieve the contents into another directory -->
-      <sf:retrieve username="zmm8965@gmail.com" password="zmm@896503" serverurl="login.salesforce.com" retrieveTarget="retrieveUnpackaged" unpackaged="package.xml"/>
+      <sf:retrieve username="zmm8965@gmail.com" password="zmm@8965038tVEgqdVdodvnuPyx9UqWWHb5" serverurl="login.salesforce.com" retrieveTarget="retrieveUnpackaged" unpackaged="package.xml"/>
     </target>
 
     <!-- Retrieve all the items of a particular metadata type -->
