@@ -4,98 +4,133 @@
 
 
     <title></title>
-    <script src="./codePattern_files/jquery-3.2.1.min.js.download" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
     <script>
 
-        function _exeOutputView(arr)
-        {
-            var table = $("<table class='outputViewTable'>");
-            for (var i = 0 ; i < arr.length ; i++) {
-                var lineValues = arr[i];
+function _exeOutputView(arr)
+{
+    var table = $("<table class='outputViewTable'>");
+    for (var i = 0 ; i < arr.length ; i++) {
+        var lineValues = arr[i];
 
-                if (i == 0) {
-                    var tr = $("<tr class='w3-green'>");
-                    for (var j = 0 ; j < lineValues.length; j++) {
-                        var value = lineValues[j];
+        if (i == 0) {
+            var tr = $("<tr class='w3-green'>");
+            for (var j = 0 ; j < lineValues.length; j++) {
+                var value = lineValues[j];
 
-                        var td = $("<td class='w3-border-white'>");
-                        td.html('{' + j + '}');
+                var td = $("<td class='w3-border-white'>");
+                td.html('{' + j + '}');
 
-                        tr.append(td);
-                    }
-                    table.append(tr);
-                }
-
-                var tr = $("<tr>");
-                for (var j = 0 ; j < lineValues.length; j++) {
-                    var value = lineValues[j];
-
-                    var td = $("<td>");
-                    td.html(value);
-
-                    tr.append(td);
-                }
-                table.append(tr);
+                tr.append(td);
             }
-
-            $("#outputView").empty().append(table);
+            table.append(tr);
         }
 
-        function _exeOutputCode(arr) {
+        var tr = $("<tr>");
+        for (var j = 0 ; j < lineValues.length; j++) {
+            var value = lineValues[j];
 
-            var outputText = [];
+            var td = $("<td>");
+            td.html(value);
 
-            for (var i = 0 ; i < arr.length; i++) {
-                var lineValues = arr[i];
-
-                var text = "";
-                for (var j = 0 ; j < lineValues.length; j++) {
-                    var value = lineValues[j];
-                    if (j != 0) {
-                        text += '\t';
-                    }
-                    text += value;
-                }
-
-                outputText.push(text);
-            }
-
-            $("#outputText").val(outputText.join("\n"));
+            tr.append(td);
         }
+        table.append(tr);
+    }
 
-        function codeOutput(matchFromFirst) {
-            
-            var resultArray = [];
+    $("#outputView").empty().append(table);
+}
 
-            var text = $("#inputText").val();
+function _exeOutputCode(arr) {
 
-            var regexText = $("#inputRegex").val();
+    var outputText = [];
 
-            var regex = new RegExp(regexText, "g");
+    for(let line of arr){
+      if(Array.isArray(line)){
+        outputText.push(line.join("\t"));
+      }else{
+        outputText.push(line);
+      }
+    }
 
-            if (!text || !regexText) {
-                return;
-            }
+    $("#outputText").val(outputText.join("\n"));
+}
 
-            var result = regex.exec(text);
-            while (result) {
-                var arr = [];
-                var i = 0;
-                if (matchFromFirst == false) {
-                    i = 1;
-                }
-                for ( ; i < result.length ; i++) {
-                    arr.push(result[i]);
-                }
-                resultArray.push(arr);
-                result = regex.exec(text);
-            }
-            //var mm = regex.exec(text);
-            //var m = text.match(regex);
+function execRow(text, regex){
+  let outputEmptyRow = $("#outputEmptyRow")[0].checked;
+  var resultArray = [];
+  var result = regex.exec(text);
+  let rows = text.split("\n");
+  for(let row of rows){
+    result = regex.exec(row);
+    var arr = [];
+    var i = 1;
+    if(result != null){
+      for ( ; i < result.length ; i++) {
+          arr.push(result[i]);
+      }
+      resultArray.push(arr);
+    }else{
+      if(outputEmptyRow){
+        resultArray.push("");
+      }
+    }
+  }
+  return resultArray;
+}
 
-            _exeOutputCode(resultArray);
-            _exeOutputView(resultArray);
-        }
+function execAll(text, regex){
+  var resultArray = [];
+  var result = regex.exec(text);
+  while (result) {
+      var arr = [];
+      var i = 1;
+      for ( ; i < result.length ; i++) {
+          arr.push(result[i]);
+      }
+      resultArray.push(arr);
+      result = regex.exec(text);
+  }
+  return resultArray;
+}
+
+function showResult(result, showText){
+  if(showText){
+    $("#outputText").show();
+    $("#outputView").hide();
+    _exeOutputCode(result);
+  }else{
+    $("#outputText").hide();
+    $("#outputView").show();
+    _exeOutputView(result);
+  }
+}
+
+function codeOutput(showText) {
+    var text = $("#inputText").val();
+
+    var regexText = $("#inputRegex").val();
+
+    var regex = new RegExp(regexText, "g");
+
+    if (!text || !regexText) {
+        return;
+    }
+
+    let result;
+
+    if($("#withRow")[0].checked){
+      result = execRow(text, regex);
+    }else{
+      result = execAll(text, regex);
+    }
+
+    showResult(result, showText);
+}
+function codeOutputCustomize(showText){
+  window.showText = showText;
+  window.eval($("#customize").val());
+}
     </script>
     <link rel="stylesheet" href="./codePattern_files/w3.css">
     <style>
@@ -155,14 +190,21 @@
             border: 1px solid #4CAF50;
             padding: 5px 8px;
         }
+        .topMenu > *{
+          margin:5px;
+        }
     </style>
 
 
-    <div style="height:35px;">
-        <button onclick="codeOutput(true);">パターン抽出(0含む){!aaa}</button>
-        <button onclick="codeOutput(false);">パターン抽出(0含まない)</button>
+    <div class="topMenu" style="height:45px;">
+        <button onclick="codeOutput(true);">抽出(text)</button>
+        <button onclick="codeOutput(false);">抽出(table)</button>
+        <button onclick="codeOutputCustomize(true);">カスタマイズ(text)</button>
+        <button onclick="codeOutputCustomize(false);">カスタマイズ(table)</button>
+        <label for="withRow">行単位</labe><input id="withRow" type="checkbox" />
+        <label for="outputEmptyRow">空行出力</label><input id="outputEmptyRow" type="checkbox" />
     </div>
-    <div style="position:absolute;top:35px;bottom:0;left:0;right:0;border:1px solid black;">
+    <div style="position:absolute;top:45px;bottom:0;left:0;right:0;border:1px solid black;">
         <div class="relativeRoot">
             <div class="absoluteBase leftTop w3-border">
                 <div class="relativeRoot">
@@ -193,24 +235,42 @@ public string b3; //c3
                 </div>
             </div>
             <div class="absoluteBase leftBottom w3-border">
-                <div class="relativeRoot">
-                    <div class="title w3-teal" style="height:50px;">
-                        出力テキスト
-                    </div>
-                    <div class="absoluteBase" style="top:50px">
-                        <textarea id="outputText" style="width:100%;height:100%"></textarea>
-                    </div>
-                </div>
+              <div class="relativeRoot">
+                  <div class="title w3-teal" style="height:50px;">
+                      カスタマイズ
+                  </div>
+                  <div id="xx" class="absoluteBase" style="top:50px">
+<textarea id="customize" style="width:100%;height:100%">var text = $("#inputText").val();
+var lines = text.split("\n");
+var regex = new RegExp("(b.)", "g");
+var resultArray = [];
+for(let rowNo=0 ; rowNo<lines.length ; rowNo++){
+  var line = lines[rowNo];
+  result = regex.exec(line);
+  if(result == null) continue;
+  var arr = [];
+  for (var i=1 ; i < result.length ; i++) {
+    arr.push(result[i]);
+  }
+  resultArray.push(arr);
+}
+showResult(resultArray, window.showText);
+</textarea>
+                  </div>
+              </div>
             </div>
             <div class="absoluteBase rightBottom w3-border">
-                <div class="relativeRoot">
-                    <div class="title w3-teal" style="height:50px;">
-                        出力値可視化
-                    </div>
-                    <div id="outputView" class="absoluteBase" style="top:50px">
-
-                    </div>
-                </div>
+              <div class="relativeRoot">
+                  <div class="title w3-teal" style="height:50px;">
+                      出力
+                  </div>
+                  <div class="absoluteBase" style="top:50px">
+                      <div id="outputView" class="absoluteBase" style="display: none;">
+    
+                      </div>
+                      <textarea id="outputText" style="width:100%;height:100%"></textarea>
+                  </div>
+              </div>
             </div>
         </div>
         
